@@ -1,0 +1,114 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Express Backend Scaffold API",
+    "version": "1.0.0",
+    "description": "API documentation for the Express Backend Scaffold"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Development server"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health check endpoint",
+        "description": "Returns the health status of the application",
+        "responses": {
+          "200": {
+            "description": "Health status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "UP"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "uptime": {
+                      "type": "number"
+                    },
+                    "environment": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ready": {
+      "get": {
+        "summary": "Readiness check endpoint",
+        "description": "Returns the readiness status of the application and its services",
+        "responses": {
+          "200": {
+            "description": "Readiness status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "UP"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "services": {
+                      "type": "object",
+                      "properties": {
+                        "mongodb": {
+                          "type": "string",
+                          "enum": ["UP", "DOWN", "DISABLED"]
+                        },
+                        "postgres": {
+                          "type": "string",
+                          "enum": ["UP", "DOWN", "DISABLED"]
+                        },
+                        "mysql": {
+                          "type": "string",
+                          "enum": ["UP", "DOWN", "DISABLED"]
+                        },
+                        "sqlserver": {
+                          "type": "string",
+                          "enum": ["UP", "DOWN", "DISABLED"]
+                        },
+                        "redis": {
+                          "type": "string",
+                          "enum": ["UP", "DOWN", "DISABLED"]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/metrics": {
+      "get": {
+        "summary": "Metrics endpoint",
+        "description": "Returns application metrics",
+        "responses": {
+          "200": {
+            "description": "Application metrics"
+          }
+        }
+      }
+    }
+  }
+}
