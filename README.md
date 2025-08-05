@@ -2,7 +2,7 @@
 
 A production-ready, modular Express.js backend scaffold built with TypeScript, following Clean Architecture principles. This scaffold provides a solid foundation for building scalable and maintainable backend applications.
 
-[![Buy Me A Coffee](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/yourusername)
+[![Buy Me A Coffee](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/rk_dev)
 
 ## 🚀 Features
 
@@ -125,18 +125,20 @@ See `.env.example` for all available options.
 
 ## 🧪 Testing
 
-Run the test suite:
+This scaffold includes sample unit and integration tests using Jest and supertest.
+
+- **Unit tests** cover controllers and services (e.g., user creation, file upload, Redis cache).
+- **Integration test** covers the user creation API endpoint.
+
+### Running Tests
 
 ```bash
-# Run all tests
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Run tests with coverage
-npm run test:coverage
+npm test           # Run all tests
+npm run test:watch # Watch mode
+npm run test:coverage # Coverage report
 ```
+
+Test files are located in `src/tests/`.
 
 ## 📚 API Documentation
 
@@ -168,3 +170,108 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## 📫 Support
 
 For support, please open an issue in the GitHub repository. 
+
+## 🗄️ Database Support
+
+This scaffold supports MongoDB, PostgreSQL, MySQL, and SQL Server. Each database connection and repository is implemented and can be toggled on or off via the `.env` file:
+
+- `MONGO_ENABLED=true` to enable MongoDB
+- `POSTGRES_ENABLED=true` to enable PostgreSQL
+- `MYSQL_ENABLED=true` to enable MySQL
+- `SQLSERVER_ENABLED=true` to enable SQL Server
+
+Each database has its own connection utility and base repository class. Example `UserRepository` implementations are provided for each database. 
+
+## 🧩 Redis Cache & Event Bus Usage
+
+### Redis Cache Service
+
+You can use the Redis cache service for general caching (sessions, query results, etc.):
+
+```typescript
+import { cacheSet, cacheGet, cacheDel } from './src/services/redisCacheService';
+
+// Set a value
+await cacheSet('mykey', { foo: 'bar' }, 60); // TTL 60 seconds
+
+// Get a value
+const value = await cacheGet('mykey');
+
+// Delete a value
+await cacheDel('mykey');
+```
+
+### Redis Event Bus
+
+You can use the Redis event bus for pub/sub event-driven architecture:
+
+```typescript
+import { publish, subscribe } from './src/events/RedisEventBus';
+
+// Subscribe to a channel
+subscribe('user:created', (msg) => {
+  console.log('Received user:created event:', msg);
+});
+
+// Publish an event
+await publish('user:created', { id: 1, name: 'Alice' });
+```
+
+Both features are only active if `REDIS_ENABLED=true` in your `.env`. 
+
+## 📦 File Upload Usage
+
+This scaffold supports file uploads to either local storage or AWS S3, controlled by the `UPLOAD_PROVIDER` variable in your `.env`:
+
+- `UPLOAD_PROVIDER=local` (default): Files are saved to the `uploads/` directory.
+- `UPLOAD_PROVIDER=s3`: Files are uploaded to your configured S3 bucket.
+
+### Example Usage
+
+Send a POST request to `/api/v1/upload` with a file field named `file`:
+
+```bash
+curl -F "file=@/path/to/your/file.jpg" http://localhost:3000/api/v1/upload
+```
+
+- If using S3, the response will include the S3 URL and key.
+- If using local, the response will include the filename and path.
+
+**.env example:**
+```
+UPLOAD_PROVIDER=local # or s3
+UPLOAD_MAX_SIZE=5242880
+UPLOAD_ALLOWED_TYPES=image/jpeg,image/png,application/pdf
+AWS_ACCESS_KEY_ID=your-access-key
+AWS_SECRET_ACCESS_KEY=your-secret-key
+AWS_REGION=us-east-1
+AWS_BUCKET_NAME=your-bucket-name
+``` 
+
+## 📣 Event-Driven Architecture Example
+
+This scaffold supports event-driven patterns using either in-memory events or Redis pub/sub (if `REDIS_ENABLED=true`).
+
+### UserCreatedEvent Example
+
+- When a user is created (via `/api/v1/user`), a `UserCreatedEvent` is emitted.
+- Listeners can subscribe to this event and perform actions (e.g., send a welcome email).
+- If Redis is enabled, the event is published/subscribed via Redis; otherwise, it uses in-memory events.
+
+**Sample usage:**
+
+```typescript
+// Emit the event (e.g., after user creation)
+import { emitUserCreatedEvent } from './src/events/UserCreatedEvent';
+emitUserCreatedEvent({ id: 1, username: 'alice', email: 'alice@example.com' });
+
+// Listen for the event
+import { onUserCreated } from './src/events/UserCreatedEvent';
+onUserCreated((user) => {
+  console.log('UserCreatedEvent received:', user);
+  // e.g., send welcome email
+});
+```
+
+**API Example:**
+- POST `/api/v1/user` with `{ "username": "alice", "email": "alice@example.com" }` will emit the event. 

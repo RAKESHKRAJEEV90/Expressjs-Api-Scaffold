@@ -83,6 +83,39 @@ if (MONGO_ENABLED) {
   logger.info('MongoDB is disabled - skipping connection');
 }
 
+// PostgreSQL connection
+if (POSTGRES_ENABLED) {
+  import('../repositories/postgres/connection').then(({ connectPostgres }) => {
+    connectPostgres().catch((error: any) => {
+      logger.error('Failed to connect to PostgreSQL:', error);
+    });
+  });
+} else {
+  logger.info('PostgreSQL is disabled - skipping connection');
+}
+
+// MySQL connection
+if (MYSQL_ENABLED) {
+  import('../repositories/mysql/connection').then(({ connectMySQL }) => {
+    connectMySQL().catch((error: any) => {
+      logger.error('Failed to connect to MySQL:', error);
+    });
+  });
+} else {
+  logger.info('MySQL is disabled - skipping connection');
+}
+
+// SQL Server connection
+if (SQLSERVER_ENABLED) {
+  import('../repositories/sqlserver/connection').then(({ connectSQLServer }) => {
+    connectSQLServer().catch((error: any) => {
+      logger.error('Failed to connect to SQL Server:', error);
+    });
+  });
+} else {
+  logger.info('SQL Server is disabled - skipping connection');
+}
+
 // Health check endpoints (root level)
 app.get('/health', (req, res) => {
   res.status(200).json({
