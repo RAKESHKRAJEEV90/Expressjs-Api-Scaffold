@@ -1,5 +1,5 @@
 import multer from 'multer';
-import AWS from 'aws-sdk';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import config from '../config';
 import path from 'path';
 
@@ -21,16 +21,20 @@ export const upload = multer({
 });
 
 export const uploadToS3 = async (file: Express.Multer.File) => {
-  const s3 = new AWS.S3({
-    accessKeyId: config.AWS_ACCESS_KEY_ID,
-    secretAccessKey: config.AWS_SECRET_ACCESS_KEY,
+  const client = new S3Client({
     region: config.AWS_REGION,
+    credentials: config.AWS_ACCESS_KEY_ID && config.AWS_SECRET_ACCESS_KEY ? {
+      accessKeyId: config.AWS_ACCESS_KEY_ID,
+      secretAccessKey: config.AWS_SECRET_ACCESS_KEY,
+    } : undefined,
   });
-  const params = {
+  const Key = `${Date.now()}-${file.originalname}`;
+  await client.send(new PutObjectCommand({
     Bucket: config.AWS_BUCKET_NAME!,
-    Key: `${Date.now()}-${file.originalname}`,
+    Key,
     Body: file.buffer,
     ContentType: file.mimetype,
-  };
-  return s3.upload(params).promise();
-}; 
+  }));
+  const Location = `https://s3.${config.AWS_REGION}.amazonaws.com/${config.AWS_BUCKET_NAME}/${Key}`;
+  return { Location, Key } as { Location: string; Key: string };
+};

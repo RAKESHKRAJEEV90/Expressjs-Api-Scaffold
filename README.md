@@ -119,6 +119,12 @@ The scaffold is highly configurable through environment variables. Key configura
 - Feature toggles
 - Security settings
 - Logging options
+  - Log rotation via env:
+    - `LOG_DIR` (default `logs`)
+    - `LOG_DATE_PATTERN` (default `YYYY-MM-DD`)
+    - `LOG_MAX_SIZE` (default `20m`)
+    - `LOG_RETENTION_DAYS` (default `3d`)
+    - `LOG_ZIP_ARCHIVE` (default `true`)
 - API settings
 
 See `.env.example` for all available options.
@@ -139,6 +145,27 @@ npm run test:coverage # Coverage report
 ```
 
 Test files are located in `src/tests/`.
+
+## 🛠️ CLI Scaffolding
+
+This project ships with a CLI to scaffold modules, routes, and GraphQL resolvers.
+
+- Run locally in dev: `npm run cli -- <command>`
+
+Commands:
+
+- `module <name>`: Creates controller, use-cases, repository stub, and a versioned route, and mounts it.
+  - Options: `-v, --version <version>` (default `v1`), `-p, --path <basePath>` (default `/<name>`)
+  - Example: `npm run cli -- module product -v v1 -p /products`
+
+- `route <name>`: Creates a versioned route file and mounts it in `src/routes/<version>/index.ts`.
+  - Options: `-v, --version <version>` (default `v1`), `-p, --path <basePath>`
+  - Example: `npm run cli -- route reports -v v1 -p /reports`
+
+- `graphql <name>`: Creates a GraphQL module at `src/graphql/modules/<name>/index.ts` with `typeDefs` and `resolvers`.
+  - Example: `npm run cli -- graphql catalog`
+
+GraphQL modules are auto-loaded when GraphQL is enabled.
 
 ## 📚 API Documentation
 

@@ -1,8 +1,8 @@
-import sql from 'mssql';
+import { ConnectionPool, IConfig } from 'mssql';
 import config from '../../config';
 import logger from '../../utils/logger';
 
-let pool: sql.ConnectionPool | null = null;
+let pool: ConnectionPool | null = null;
 
 /**
  * Initialize SQL Server connection if enabled in config.
@@ -18,14 +18,16 @@ export async function connectSQLServer() {
   }
   if (pool) return pool;
   try {
-    pool = await sql.connect({
-      server: config.SQLSERVER_HOST,
-      port: config.SQLSERVER_PORT,
-      database: config.SQLSERVER_DB,
-      user: config.SQLSERVER_USER,
-      password: config.SQLSERVER_PASSWORD,
+    const cfg: IConfig = {
+      server: config.SQLSERVER_HOST!,
+      database: config.SQLSERVER_DB!,
+      user: config.SQLSERVER_USER!,
+      password: config.SQLSERVER_PASSWORD!,
       options: { encrypt: false },
-    });
+    };
+    // @ts-expect-error optional port typing not included in our minimal d.ts
+    if (config.SQLSERVER_PORT) cfg.port = config.SQLSERVER_PORT;
+    pool = await new ConnectionPool(cfg).connect();
     logger.info('Connected to SQL Server');
     return pool;
   } catch (err) {

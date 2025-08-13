@@ -1,4 +1,4 @@
-import { AuthenticationError, UserInputError } from 'apollo-server-express';
+import { GraphQLError } from 'graphql';
 import { v4 as uuidv4 } from 'uuid';
 
 // In-memory data store (replace with database in production)
@@ -30,7 +30,7 @@ export default {
     users: () => users,
     user: (_: any, { id }: { id: string }) => users.find(user => user.id === id),
     me: (_: any, __: any, { user }: { user: any }) => {
-      if (!user) throw new AuthenticationError('Not authenticated');
+      if (!user) throw new GraphQLError('Not authenticated', { extensions: { code: 'UNAUTHENTICATED' } });
       return users.find(u => u.id === user.id);
     },
 
@@ -48,7 +48,7 @@ export default {
     createUser: (_: any, { input }: { input: any }) => {
       const existingUser = users.find(user => user.email === input.email);
       if (existingUser) {
-        throw new UserInputError('User with this email already exists');
+        throw new GraphQLError('User with this email already exists', { extensions: { code: 'BAD_USER_INPUT' } });
       }
 
       const newUser = {
@@ -64,7 +64,7 @@ export default {
     updateUser: (_: any, { id, input }: { id: string, input: any }) => {
       const userIndex = users.findIndex(user => user.id === id);
       if (userIndex === -1) {
-        throw new UserInputError('User not found');
+        throw new GraphQLError('User not found', { extensions: { code: 'BAD_USER_INPUT' } });
       }
 
       const updatedUser = {
@@ -79,7 +79,7 @@ export default {
     deleteUser: (_: any, { id }: { id: string }) => {
       const userIndex = users.findIndex(user => user.id === id);
       if (userIndex === -1) {
-        throw new UserInputError('User not found');
+        throw new GraphQLError('User not found', { extensions: { code: 'BAD_USER_INPUT' } });
       }
 
       users.splice(userIndex, 1);
@@ -102,7 +102,7 @@ export default {
     updateTask: (_: any, { id, input }: { id: string, input: any }) => {
       const taskIndex = tasks.findIndex(task => task.id === id);
       if (taskIndex === -1) {
-        throw new UserInputError('Task not found');
+        throw new GraphQLError('Task not found', { extensions: { code: 'BAD_USER_INPUT' } });
       }
 
       const updatedTask = {
@@ -117,7 +117,7 @@ export default {
     deleteTask: (_: any, { id }: { id: string }) => {
       const taskIndex = tasks.findIndex(task => task.id === id);
       if (taskIndex === -1) {
-        throw new UserInputError('Task not found');
+        throw new GraphQLError('Task not found', { extensions: { code: 'BAD_USER_INPUT' } });
       }
 
       tasks.splice(taskIndex, 1);
@@ -127,12 +127,12 @@ export default {
     assignTask: (_: any, { taskId, userId }: { taskId: string, userId: string }) => {
       const taskIndex = tasks.findIndex(task => task.id === taskId);
       if (taskIndex === -1) {
-        throw new UserInputError('Task not found');
+        throw new GraphQLError('Task not found', { extensions: { code: 'BAD_USER_INPUT' } });
       }
 
       const userExists = users.some(user => user.id === userId);
       if (!userExists) {
-        throw new UserInputError('User not found');
+        throw new GraphQLError('User not found', { extensions: { code: 'BAD_USER_INPUT' } });
       }
 
       const updatedTask = {

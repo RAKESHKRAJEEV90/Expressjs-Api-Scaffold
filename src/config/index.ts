@@ -76,6 +76,11 @@ const configSchema = z.object({
   // Logging configuration
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
   LOG_FORMAT: z.enum(['pretty', 'json']).default('pretty'),
+  LOG_DIR: z.string().default('logs'),
+  LOG_DATE_PATTERN: z.string().default('YYYY-MM-DD'),
+  LOG_MAX_SIZE: z.string().default('20m'),
+  LOG_RETENTION_DAYS: z.string().default('3d'),
+  LOG_ZIP_ARCHIVE: z.string().transform(parseBoolean).default('true'),
 
   // Rate limiting
   RATE_LIMIT_WINDOW_MS: z.string().transform(Number).default('900000'),

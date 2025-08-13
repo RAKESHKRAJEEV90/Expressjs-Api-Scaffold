@@ -1,8 +1,7 @@
 import { Router } from 'express';
-import fs from 'fs';
-import path from 'path';
 import config from '../config';
 import logger from '../utils/logger';
+import v1Router from './v1';
 
 const router = Router();
 
@@ -39,16 +38,7 @@ router.get('/ready', (req, res) => {
   });
 });
 
-// Dynamically load all versioned route folders (e.g., v1, v2)
-const routesDir = path.join(__dirname);
-const versions = fs.readdirSync(routesDir).filter((file) =>
-  fs.statSync(path.join(routesDir, file)).isDirectory() && file.startsWith('v'),
-);
-
-// Mount versioned routes under /api
-versions.forEach((version) => {
-  const versionRouter = require(path.join(routesDir, version)).default;
-  router.use(`/api/${version}`, versionRouter);
-});
+// Mount v1 routes explicitly to avoid dynamic resolution issues in tests
+router.use('/v1', v1Router);
 
 export default router; 

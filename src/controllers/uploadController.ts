@@ -10,7 +10,8 @@ export async function uploadFile(req: Request, res: Response) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
 
-  if (config.UPLOAD_PROVIDER === 's3') {
+  const provider = process.env.UPLOAD_PROVIDER || config.UPLOAD_PROVIDER;
+  if (provider === 's3') {
     try {
       const result = await uploadToS3(req.file);
       return res.json({ url: result.Location, key: result.Key });

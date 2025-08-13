@@ -3,6 +3,16 @@ import logger from '../utils/logger';
 
 let redisClient: any = null;
 
+// Test helper to inject a mock Redis client
+export function __setRedisClient(client: any) {
+  redisClient = client;
+}
+
+// Expose a test-only hook to inject a mock Redis client
+export function __setRedisClientForTests(client: any) {
+  redisClient = client;
+}
+
 if (config.REDIS_ENABLED) {
   try {
     const Redis = require('ioredis');

@@ -16,6 +16,6 @@ export const login = async (req: Request, res: Response) => {
   if (!user || !(await user.comparePassword(password))) throw new AppError('Invalid credentials', 401);
 
   const payload = { id: user._id, role: user.role };
-  const token = jwt.sign(payload, config.JWT_SECRET, { expiresIn: config.JWT_EXPIRES_IN });
+  const token = jwt.sign(payload as any, config.JWT_SECRET as unknown as jwt.Secret, { expiresIn: config.JWT_EXPIRES_IN as any });
   res.json({ token });
 }; 

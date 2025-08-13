@@ -1,18 +1,20 @@
 import * as cacheService from '../../services/redisCacheService';
 
 describe('redisCacheService', () => {
+  let mockClient: any;
   beforeAll(() => {
-    // Mock redisClient
-    (cacheService as any).redisClient = {
+    // Inject mock redis client via test hook
+    mockClient = {
       set: jest.fn(),
       get: jest.fn().mockResolvedValue(JSON.stringify({ foo: 'bar' })),
       del: jest.fn(),
     };
+    (cacheService as any).__setRedisClient(mockClient);
   });
 
   it('should set a value', async () => {
     await cacheService.cacheSet('key', { foo: 'bar' }, 60);
-    expect((cacheService as any).redisClient.set).toHaveBeenCalled();
+    expect(mockClient.set).toHaveBeenCalled();
   });
 
   it('should get a value', async () => {
@@ -22,6 +24,6 @@ describe('redisCacheService', () => {
 
   it('should delete a value', async () => {
     await cacheService.cacheDel('key');
-    expect((cacheService as any).redisClient.del).toHaveBeenCalled();
+    expect(mockClient.del).toHaveBeenCalled();
   });
 }); 

@@ -54,15 +54,17 @@ export function loadEnv() {
     }
   });
 
-  // Log raw environment variables for debugging
-  console.log('Raw environment variables:', {
-    MONGO_ENABLED: process.env.MONGO_ENABLED,
-    POSTGRES_ENABLED: process.env.POSTGRES_ENABLED,
-    MYSQL_ENABLED: process.env.MYSQL_ENABLED,
-    SQLSERVER_ENABLED: process.env.SQLSERVER_ENABLED,
-    REDIS_ENABLED: process.env.REDIS_ENABLED
-  });
+  if (process.env.NODE_ENV !== 'test') {
+    // Log raw environment variables for debugging
+    console.log('Raw environment variables:', {
+      MONGO_ENABLED: process.env.MONGO_ENABLED,
+      POSTGRES_ENABLED: process.env.POSTGRES_ENABLED,
+      MYSQL_ENABLED: process.env.MYSQL_ENABLED,
+      SQLSERVER_ENABLED: process.env.SQLSERVER_ENABLED,
+      REDIS_ENABLED: process.env.REDIS_ENABLED
+    });
 
-  // Log cleaned environment variables
-  console.log('Cleaned environment variables:', cleanEnvVars);
+    // Log cleaned environment variables
+    console.log('Cleaned environment variables:', cleanEnvVars);
+  }
 } 
